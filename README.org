@@ -5,3 +5,75 @@
 * Repository Information
   - Author :: Peter Polidoro
   - License :: BSD
+
+* Raspberry Pi Setup
+
+** Setup Raspbian SD Card
+
+   On a host computer run:
+
+   #+BEGIN_SRC sh
+     cd ~/Downloads
+     rm *-raspbian-buster-lite.zip
+     wget https://downloads.raspberrypi.org/raspbian_lite_latest
+   #+END_SRC
+
+   Plug SD card into host computer and run:
+
+   #+BEGIN_SRC sh
+     lsblk -p
+   #+END_SRC
+
+   After verifying which device is your SD card (e.g. /dev/sdb1), unmount it
+   using the following command:
+
+   #+BEGIN_SRC sh
+     umount /dev/sdb1
+   #+END_SRC
+
+   Next, we can write the image file to the SD card (be very careful using dd!):
+   - if= path to your image
+   - of = where to write output (note: do not include partition number)
+
+     Wait for a long time for command to finish.
+
+     #+BEGIN_SRC sh
+       unzip -p ~/Downloads/*-raspbian-buster-lite.zip | sudo dd of=/dev/sdb bs=4M status=progress conv=fsync
+       sudo touch $(findmnt -S /dev/sdb1 -o TARGET -n)/ssh
+       umount /dev/sdb1
+       umount /dev/sdb2
+     #+END_SRC
+
+     Remove SD card from host computer.
+
+** Connect Raspberry Pi
+
+   Insert the SD card you’ve set up with Raspbian into the microSD card slot on
+   the underside of your Raspberry Pi.
+
+   Use an Ethernet cable to connect the Ethernet port on Raspberry Pi to an
+   Ethernet socket on the wall or on your internet router.
+
+   Plug the USB power supply into a socket and connect it to your Raspberry Pi’s
+   power port.
+
+*** SSH into Raspberry Pi
+
+    #+BEGIN_SRC sh
+      ping raspberrypi.local
+    #+END_SRC
+
+    Make note of Raspberry Pi IP address (example 192.168.1.131).
+
+    #+BEGIN_SRC sh
+      ssh pi@192.168.1.131
+    #+END_SRC
+
+*** Configure
+
+    #+BEGIN_SRC sh
+      sudo raspi-config
+    #+END_SRC
+
+    - Change password
+    -
