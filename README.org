@@ -85,15 +85,4 @@
 
 *** Install Docker
 
-    #+BEGIN_SRC sh
-      curl -fsSL https://get.docker.com -o get-docker.sh
-      sudo sh get-docker.sh
-      sudo usermod -aG docker $USER
-      sudo reboot
-    #+END_SRC
-
-*** Test Docker
-
-    #+BEGIN_SRC sh
-      docker run hello-world
-    #+END_SRC
+    [[https://github.com/janelia-experimental-technology/docker_setup/blob/master/DOCKER_SETUP_LINUX.org]]
