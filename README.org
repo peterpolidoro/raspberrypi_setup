@@ -8,14 +8,13 @@
 
 * Raspberry Pi Setup
 
-** Setup Raspbian SD Card
+** Setup Ubuntu Server SD Card
 
    On a host computer run:
 
    #+BEGIN_SRC sh
      cd ~/Downloads
-     rm *-raspbian-buster-lite.zip
-     wget https://downloads.raspberrypi.org/raspbian_lite_latest
+     wget http://cdimage.ubuntu.com/ubuntu/releases/20.04/release/ubuntu-20.04-preinstalled-server-arm64+raspi.img.xz
    #+END_SRC
 
    Plug SD card into host computer and run:
@@ -38,7 +37,8 @@
      Wait for a long time for command to finish.
 
      #+BEGIN_SRC sh
-       unzip -p ~/Downloads/*-raspbian-buster-lite.zip | sudo dd of=/dev/sdb bs=4M status=progress conv=fsync
+       cd ~/Downloads
+       xzcat ubuntu-20.04-preinstalled-server-arm64+raspi.img.xz | sudo dd of=/dev/sdb bs=4M status=progress conv=fsync
        sudo touch $(findmnt -S /dev/sdb1 -o TARGET -n)/ssh
        umount /dev/sdb1
        umount /dev/sdb2
@@ -48,7 +48,7 @@
 
 ** Connect Raspberry Pi
 
-   Insert the SD card you’ve set up with Raspbian into the microSD card slot on
+   Insert the SD card you’ve set up with Ubuntu Server into the microSD card slot on
    the underside of your Raspberry Pi.
 
    Use an Ethernet cable to connect the Ethernet port on Raspberry Pi to an
@@ -60,26 +60,15 @@
 *** SSH into Raspberry Pi
 
     #+BEGIN_SRC sh
-      ping raspberrypi.local
+      ssh ubuntu@ubuntu
     #+END_SRC
 
-    Make note of Raspberry Pi IP address (example 192.168.1.131).
+*** Update
 
     #+BEGIN_SRC sh
-      ssh pi@192.168.1.131
+      sudo apt update
+      sudo apt full-upgrade
     #+END_SRC
-
-*** Configure
-
-    #+BEGIN_SRC sh
-      sudo raspi-config
-    #+END_SRC
-
-    - Change password
-    - Change locale to en_US.UTF-8
-    - Change timezone
-    - Change wifi country to US
-    - Update
 
     Reboot
 
