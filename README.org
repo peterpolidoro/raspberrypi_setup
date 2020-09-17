@@ -14,7 +14,7 @@
 
    #+BEGIN_SRC sh
      cd ~/Downloads
-     wget http://cdimage.ubuntu.com/ubuntu/releases/20.04/release/ubuntu-20.04-preinstalled-server-arm64+raspi.img.xz
+     wget https://cdimage.ubuntu.com/releases/20.04/release/ubuntu-20.04.1-preinstalled-server-arm64+raspi.img.xz
    #+END_SRC
 
    Plug SD card into host computer and run:
@@ -38,7 +38,7 @@
 
      #+BEGIN_SRC sh
        cd ~/Downloads
-       xzcat ubuntu-20.04-preinstalled-server-arm64+raspi.img.xz | sudo dd of=/dev/sdb bs=4M status=progress conv=fsync
+       xzcat ubuntu-20.04.1-preinstalled-server-arm64+raspi.img.xz | sudo dd of=/dev/sdb bs=4M status=progress conv=fsync
        sudo touch $(findmnt -S /dev/sdb1 -o TARGET -n)/ssh
        umount /dev/sdb1
        umount /dev/sdb2
@@ -46,7 +46,7 @@
 
      Remove SD card from host computer.
 
-** Connect Raspberry Pi
+** Initialize Raspberry Pi
 
    Insert the SD card you’ve set up with Ubuntu Server into the microSD card slot on
    the underside of your Raspberry Pi.
@@ -70,7 +70,17 @@
       sudo apt full-upgrade
     #+END_SRC
 
-    Reboot
+*** Setup DHCP for USB Ethernet Adapter Peer to Peer Connection
+
+    #+BEGIN_SRC sh
+      sudo apt install isc-dhcp-server -y
+    #+END_SRC
+
+*** Setup udev rules for Teensy Connection
+
+    #+BEGIN_SRC sh
+      sudo wget -P /etc/udev/rules.d/ https://www.pjrc.com/teensy/49-teensy.rules
+    #+END_SRC
 
 *** Install Docker
 
