@@ -74,12 +74,15 @@
 
     #+BEGIN_SRC sh
       sudo apt install isc-dhcp-server -y
+      sudo wget -P /etc/dhcp/ https://raw.githubusercontent.com/janelia-experimental-technology/raspberrypi_setup/master/etc/dhcp/dhcpd.conf
+      sudo wget -P /etc/default https://raw.githubusercontent.com/janelia-experimental-technology/raspberrypi_setup/master/etc/default/isc-dhcp-server
+      sudo systemctl restart isc-dhcp-server
     #+END_SRC
 
 *** Setup udev rules for Teensy Connection
 
     #+BEGIN_SRC sh
-      sudo wget -P /etc/udev/rules.d/ https://www.pjrc.com/teensy/49-teensy.rules
+      sudo wget -P /etc/udev/rules.d/ https://raw.githubusercontent.com/janelia-experimental-technology/raspberrypi_setup/master/etc/udev/rules.d/49-teensy.rules
     #+END_SRC
 
 *** Install Docker
