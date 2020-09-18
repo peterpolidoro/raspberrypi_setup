@@ -52,7 +52,8 @@
    the underside of your Raspberry Pi.
 
    Use an Ethernet cable to connect the Ethernet port on Raspberry Pi to an
-   Ethernet socket on the wall or on your internet router.
+   Ethernet socket on the wall, or toon your internet router, or to a host
+   computer ethernet port, or to a usb to ethernet adapter.
 
    Plug the USB power supply into a socket and connect it to your Raspberry Pi’s
    power port.
@@ -63,19 +64,33 @@
       ssh ubuntu@ubuntu
     #+END_SRC
 
+**** If 'No route to host' error:
+
+     #+BEGIN_SRC sh
+       ip addr
+       # find ip addresses of various ip links on the host computer
+       # e.g. 192.168.1.117
+       nmap -p22 --open -sV 192.168.1.0/24
+       ssh ubuntu@192.168.1.77
+       # e.g. 10.42.0.1
+       nmap -p22 --open -sV 10.42.0.0/24
+       ssh ubuntu@10.42.0.192
+     #+END_SRC
+
 *** Update
 
     #+BEGIN_SRC sh
       sudo apt update
       sudo apt full-upgrade
+      # may need to reboot before upgrade if unattended-upgr has cache lock
     #+END_SRC
 
 *** Setup DHCP for USB Ethernet Adapter Peer to Peer Connection
 
     #+BEGIN_SRC sh
       sudo apt install isc-dhcp-server -y
-      sudo wget -P /etc/dhcp/ https://raw.githubusercontent.com/janelia-experimental-technology/raspberrypi_setup/master/etc/dhcp/dhcpd.conf
-      sudo wget -P /etc/default https://raw.githubusercontent.com/janelia-experimental-technology/raspberrypi_setup/master/etc/default/isc-dhcp-server
+      sudo wget -O /etc/dhcp/dhcpd.conf https://raw.githubusercontent.com/janelia-experimental-technology/raspberrypi_setup/master/etc/dhcp/dhcpd.conf
+      sudo wget -O /etc/default/isc-dhcp-server https://raw.githubusercontent.com/janelia-experimental-technology/raspberrypi_setup/master/etc/default/isc-dhcp-server
       sudo systemctl restart isc-dhcp-server
     #+END_SRC
 
