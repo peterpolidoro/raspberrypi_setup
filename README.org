@@ -85,15 +85,6 @@
       # may need to reboot before upgrade if unattended-upgr has cache lock
     #+END_SRC
 
-*** Setup DHCP for USB Ethernet Adapter Peer to Peer Connection
-
-    #+BEGIN_SRC sh
-      sudo apt install isc-dhcp-server -y
-      sudo wget -O /etc/dhcp/dhcpd.conf https://raw.githubusercontent.com/janelia-experimental-technology/raspberrypi_setup/master/etc/dhcp/dhcpd.conf
-      sudo wget -O /etc/default/isc-dhcp-server https://raw.githubusercontent.com/janelia-experimental-technology/raspberrypi_setup/master/etc/default/isc-dhcp-server
-      sudo systemctl restart isc-dhcp-server
-    #+END_SRC
-
 *** Setup udev rules for Teensy Connection
 
     #+BEGIN_SRC sh
@@ -103,3 +94,12 @@
 *** Install Docker
 
     [[https://github.com/janelia-experimental-technology/docker_setup/blob/master/DOCKER_SETUP_LINUX.org]]
+
+*** Setup DHCP for USB Ethernet Adapter Peer to Peer Connection
+
+    #+BEGIN_SRC sh
+      sudo apt install isc-dhcp-server -y
+      sudo wget -O /etc/dhcp/dhcpd.conf https://raw.githubusercontent.com/janelia-experimental-technology/raspberrypi_setup/master/etc/dhcp/dhcpd.conf
+      sudo wget -O /etc/default/isc-dhcp-server https://raw.githubusercontent.com/janelia-experimental-technology/raspberrypi_setup/master/etc/default/isc-dhcp-server
+      sudo systemctl restart isc-dhcp-server
+    #+END_SRC
