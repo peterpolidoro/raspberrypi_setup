@@ -98,6 +98,7 @@
 *** Setup DHCP for USB Ethernet Adapter Peer to Peer Connection
 
     #+BEGIN_SRC sh
+      sudo wget -O /etc/cloud/cloud.cfg.d/99-disable-network-config.cfg https://raw.githubusercontent.com/janelia-experimental-technology/raspberrypi_setup/master/etc/cloud/cloud.cfg.d/99-disable-network-config.cfg
       sudo apt install isc-dhcp-server -y
       sudo wget -O /etc/dhcp/dhcpd.conf https://raw.githubusercontent.com/janelia-experimental-technology/raspberrypi_setup/master/etc/dhcp/dhcpd.conf
       sudo wget -O /etc/default/isc-dhcp-server https://raw.githubusercontent.com/janelia-experimental-technology/raspberrypi_setup/master/etc/default/isc-dhcp-server
