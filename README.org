@@ -23,11 +23,11 @@
      lsblk -p
    #+END_SRC
 
-   After verifying which device is your SD card (e.g. /dev/sdb1), unmount it
+   After verifying which device is your SD card (e.g. /dev/sdf1), unmount it
    using the following command:
 
    #+BEGIN_SRC sh
-     umount /dev/sdb1
+     umount /dev/sdf[0-9]
    #+END_SRC
 
    Next, we can write the image file to the SD card (be very careful using dd!):
@@ -38,10 +38,9 @@
 
      #+BEGIN_SRC sh
        cd ~/Downloads
-       xzcat ubuntu-20.04.1-preinstalled-server-arm64+raspi.img.xz | sudo dd of=/dev/sdb bs=4M status=progress conv=fsync
-       sudo touch $(findmnt -S /dev/sdb1 -o TARGET -n)/ssh
-       umount /dev/sdb1
-       umount /dev/sdb2
+       xzcat ubuntu-20.04.1-preinstalled-server-arm64+raspi.img.xz | sudo dd of=/dev/sdf bs=4M status=progress conv=fsync
+       sudo touch $(findmnt -S /dev/sdf1 -o TARGET -n)/ssh
+       umount /dev/sdf[0-9]
      #+END_SRC
 
      Remove SD card from host computer.
@@ -61,7 +60,7 @@
 *** SSH into Raspberry Pi
 
     #+BEGIN_SRC sh
-      ssh ubuntu@ubuntu
+      ssh ubuntu@ubuntu.local
     #+END_SRC
 
 **** If 'No route to host' error:
@@ -74,8 +73,13 @@
        ssh ubuntu@192.168.1.77
        # e.g. 10.42.0.1
        nmap -p22 --open -sV 10.42.0.0/24
-       ssh ubuntu@10.42.0.192
+       ssh ubuntu@10.42.0.193
      #+END_SRC
+
+*** Change password
+
+    Initial password is: ubuntu
+    Change password
 
 *** Update
 
@@ -85,12 +89,89 @@
       # may need to reboot before upgrade if unattended-upgr has cache lock
     #+END_SRC
 
-*** Setup udev rules for Teensy Connection
+*** Change username and hostname
+
+**** Create temporary user
+
+     #+BEGIN_SRC sh
+       sudo adduser tempuser
+       sudo usermod -aG sudo tempuser
+       exit
+     #+END_SRC
+
+**** Change username
+
+     #+BEGIN_SRC sh
+       ssh tempuser@<ipaddress>
+     #+END_SRC
+
+     #+BEGIN_SRC sh
+       sudo usermod -l newusername -d /home/newusername -m oldusername
+       sudo groupmod -n newusername oldusername
+       sudo ln -s /home/newusername /home/oldusername
+       exit
+     #+END_SRC
+
+     #+BEGIN_SRC sh
+       ssh newusername@<ipaddress>
+     #+END_SRC
+
+     #+BEGIN_SRC sh
+       sudo userdel -r tempuser
+       exit
+     #+END_SRC
+
+**** Change hostname
+
+     #+BEGIN_SRC sh
+       hostnamectl
+       sudo hostnamectl set-hostname newNameHere
+       sudo nano /etc/hosts
+       # Replace any occurrence of the existing computer name with your new hostname.
+       sudo reboot
+     #+END_SRC
+
+*** Setup avahi-daemon so you can reach hostname.local from from host OS
 
     #+BEGIN_SRC sh
-      sudo wget -P /etc/udev/rules.d/ https://raw.githubusercontent.com/janelia-experimental-technology/raspberrypi_setup/master/etc/udev/rules.d/49-teensy.rules
+      sudo apt install -y avahi-daemon avahi-discover avahi-utils libnss-mdns mdns-scan
+      sudo reboot
     #+END_SRC
+
+*** Setup cockpit for managing Ubuntu with a web console
+
+    #+BEGIN_SRC sh
+      sudo apt install -y cockpit
+    #+END_SRC
+
+**** Access cockpit web console on Ubuntu
+
+     https://hostname.local:9090
 
 *** Install Docker
 
     [[https://github.com/janelia-experimental-technology/docker_setup/blob/master/DOCKER_SETUP_LINUX.org]]
+
+* Connecting to Raspberry Pi
+
+** Ubuntu
+
+*** USB to Ethernet Adapter Direct Connection
+
+    Setup Ethernet connection for USB ethernet adapter device and under IPv4
+    settings set method to 'Shared to other computers'.
+
+** Windows
+
+*** Download Bonjour Print Services for Windows
+
+    To make hostname.local work with windows, you must download and install
+    Bonjour for Windows:
+
+    https://developer.apple.com/bonjour/
+
+*** USB to Ethernet Adapter Direct Connection
+
+    Setup Ethernet connection for USB ethernet adapter device and in Network and
+    Sharing Center select network with internet access and allow internet
+    connection sharing with Ethernet connection of USB ethernet adapter.
