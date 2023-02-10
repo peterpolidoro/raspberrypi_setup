@@ -3,154 +3,161 @@
 #+EMAIL: peter@polidoro.io
 
 * Repository Information
-  - Author :: Peter Polidoro
-  - License :: BSD
+- Author :: Peter Polidoro
+- License :: BSD-3-Clause
+- Modification Date: 2023-02-10
+- Ubuntu Version :: ubuntu-22.04.1-preinstalled-server-arm64+raspi
 
 * Raspberry Pi Setup
 
 ** Setup Ubuntu Server SD Card
 
-   On a host computer run:
+On a host computer run:
 
-   #+BEGIN_SRC sh
-     cd ~/Downloads
-     wget https://cdimage.ubuntu.com/releases/20.04/release/ubuntu-20.04.1-preinstalled-server-arm64+raspi.img.xz
-   #+END_SRC
+#+BEGIN_SRC sh
+cd ~/Downloads && wget https://cdimage.ubuntu.com/releases/22.04.1/release/ubuntu-22.04.1-preinstalled-server-arm64+raspi.img.xz
+#+END_SRC
 
-   Plug SD card into host computer and run:
+On a host computer run this before plugging SD card into host computer:
 
-   #+BEGIN_SRC sh
-     lsblk -p
-   #+END_SRC
+#+BEGIN_SRC sh
+lsblk -p
+#+END_SRC
 
-   After verifying which device is your SD card (e.g. /dev/sdf1), unmount it
-   using the following command:
+Plug SD card into host computer and run:
 
-   #+BEGIN_SRC sh
-     umount /dev/sdf[0-9]
-   #+END_SRC
+#+BEGIN_SRC sh
+lsblk -p
+#+END_SRC
 
-   Next, we can write the image file to the SD card (be very careful using dd!):
-   - if= path to your image
-   - of = where to write output (note: do not include partition number)
+After verifying which device is your SD card (e.g. /dev/sdf1), unmount it
+using the following command:
 
-     Wait for a long time for command to finish.
+#+BEGIN_SRC sh
+umount /dev/sdf[0-9]
+#+END_SRC
 
-     #+BEGIN_SRC sh
-       cd ~/Downloads
-       xzcat ubuntu-20.04.1-preinstalled-server-arm64+raspi.img.xz | sudo dd of=/dev/sdf bs=4M status=progress conv=fsync
-       sudo touch $(findmnt -S /dev/sdf1 -o TARGET -n)/ssh
-       umount /dev/sdf[0-9]
-     #+END_SRC
+Next, we can write the image file to the SD card (be very careful using dd!):
+- if= path to your image
+- of = where to write output (note: do not include partition number)
 
-     Remove SD card from host computer.
+Wait for a long time for command to finish.
+
+#+BEGIN_SRC sh
+cd ~/Downloads && xzcat ubuntu-22.04.1-preinstalled-server-arm64+raspi.img.xz | sudo dd of=/dev/sdf bs=4M status=progress conv=fsync
+sudo touch $(findmnt -S /dev/sdf1 -o TARGET -n)/ssh
+umount /dev/sdf[0-9]
+#+END_SRC
+
+Remove SD card from host computer.
 
 ** Initialize Raspberry Pi
 
-   Insert the SD card you’ve set up with Ubuntu Server into the microSD card slot on
-   the underside of your Raspberry Pi.
+Insert the SD card you’ve set up with Ubuntu Server into the microSD card slot on
+the underside of your Raspberry Pi.
 
-   Use an Ethernet cable to connect the Ethernet port on Raspberry Pi to an
-   Ethernet socket on the wall, or toon your internet router, or to a host
-   computer ethernet port, or to a usb to ethernet adapter.
+Use an Ethernet cable to connect the Ethernet port on Raspberry Pi to an
+Ethernet socket on the wall, or toon your internet router, or to a host
+computer ethernet port, or to a usb to ethernet adapter.
 
-   Plug the USB power supply into a socket and connect it to your Raspberry Pi’s
-   power port.
+Plug the USB power supply into a socket and connect it to your Raspberry Pi’s
+power port.
 
 *** SSH into Raspberry Pi
 
-    #+BEGIN_SRC sh
-      ssh ubuntu@ubuntu.local
-    #+END_SRC
+#+BEGIN_SRC sh
+ssh ubuntu@ubuntu.local
+#+END_SRC
 
 **** If 'No route to host' error:
 
-     #+BEGIN_SRC sh
-       ip addr
-       # find ip addresses of various ip links on the host computer
-       # e.g. 192.168.1.117
-       nmap -p22 --open -sV 192.168.1.0/24
-       ssh ubuntu@192.168.1.77
-       # e.g. 10.42.0.1
-       nmap -p22 --open -sV 10.42.0.0/24
-       ssh ubuntu@10.42.0.193
-     #+END_SRC
+#+BEGIN_SRC sh
+ip addr
+# find ip addresses of various ip links on the host computer
+# e.g. 192.168.1.117
+nmap -p22 --open -sV 192.168.1.0/24
+ssh ubuntu@192.168.1.77
+# e.g. 10.42.0.1
+nmap -p22 --open -sV 10.42.0.0/24
+ssh ubuntu@10.42.0.193
+#+END_SRC
 
 *** Change password
 
-    Initial password is: ubuntu
-    Change password
+Initial password is: ubuntu
+Change password
 
 *** Update
 
-    #+BEGIN_SRC sh
-      sudo apt update
-      sudo apt full-upgrade
-      # may need to reboot before upgrade if unattended-upgr has cache lock
-    #+END_SRC
+#+BEGIN_SRC sh
+# may need to reboot before upgrade if unattended-upgr has cache lock
+sudo apt update && sudo apt full-upgrade -y
+sudo apt autoremove -y
+# reboot after upgrade
+#+END_SRC
+
+*** Setup avahi-daemon so you can reach hostname.local from from host OS
+
+#+BEGIN_SRC sh
+sudo apt install -y avahi-daemon avahi-discover avahi-utils libnss-mdns mdns-scan
+sudo reboot
+#+END_SRC
+
 
 *** Change username and hostname
 
 **** Create temporary user
 
-     #+BEGIN_SRC sh
-       sudo adduser tempuser
-       sudo usermod -aG sudo tempuser
-       exit
-     #+END_SRC
+#+BEGIN_SRC sh
+sudo adduser tempuser && sudo usermod -aG sudo tempuser
+exit
+#+END_SRC
 
 **** Change username
 
-     #+BEGIN_SRC sh
-       ssh tempuser@<ipaddress>
-     #+END_SRC
+#+BEGIN_SRC sh
+ssh tempuser@<ipaddress>
+#+END_SRC
 
-     #+BEGIN_SRC sh
-       sudo usermod -l newusername -d /home/newusername -m oldusername
-       sudo groupmod -n newusername oldusername
-       sudo ln -s /home/newusername /home/oldusername
-       exit
-     #+END_SRC
+#+BEGIN_SRC sh
+sudo usermod -l newusername -d /home/newusername -m ubuntu
+sudo groupmod -n newusername ubuntu
+sudo ln -s /home/newusername /home/ubuntu
+exit
+#+END_SRC
 
-     #+BEGIN_SRC sh
-       ssh newusername@<ipaddress>
-     #+END_SRC
+#+BEGIN_SRC sh
+ssh newusername@ubuntu.local
+#+END_SRC
 
-     #+BEGIN_SRC sh
-       sudo userdel -r tempuser
-       exit
-     #+END_SRC
+#+BEGIN_SRC sh
+sudo userdel -r tempuser
+exit
+#+END_SRC
 
 **** Change hostname
 
-     #+BEGIN_SRC sh
-       hostnamectl
-       sudo hostnamectl set-hostname newNameHere
-       sudo nano /etc/hosts
-       # Replace any occurrence of the existing computer name with your new hostname.
-       sudo reboot
-     #+END_SRC
-
-*** Setup avahi-daemon so you can reach hostname.local from from host OS
-
-    #+BEGIN_SRC sh
-      sudo apt install -y avahi-daemon avahi-discover avahi-utils libnss-mdns mdns-scan
-      sudo reboot
-    #+END_SRC
+#+BEGIN_SRC sh
+hostnamectl
+sudo hostnamectl set-hostname newhostname
+sudo nano /etc/hosts
+# Replace any occurrence of the existing computer name with your new hostname.
+sudo reboot
+#+END_SRC
 
 *** Setup cockpit for managing Ubuntu with a web console
 
-    #+BEGIN_SRC sh
-      sudo apt install -y cockpit
-    #+END_SRC
+#+BEGIN_SRC sh
+sudo apt install -y cockpit
+#+END_SRC
 
 **** Access cockpit web console on Ubuntu
 
-     https://hostname.local:9090
+https://hostname.local:9090
 
 *** Install Docker
 
-    [[https://github.com/janelia-experimental-technology/docker_setup/blob/master/DOCKER_SETUP_LINUX.org]]
+[[https://github.com/janelia-experimental-technology/docker_setup/blob/master/DOCKER_SETUP_LINUX.org]]
 
 * Connecting to Raspberry Pi
 
@@ -158,20 +165,20 @@
 
 *** USB to Ethernet Adapter Direct Connection
 
-    Setup Ethernet connection for USB ethernet adapter device and under IPv4
-    settings set method to 'Shared to other computers'.
+Setup Ethernet connection for USB ethernet adapter device and under IPv4
+settings set method to 'Shared to other computers'.
 
 ** Windows
 
 *** Download Bonjour Print Services for Windows
 
-    To make hostname.local work with windows, you must download and install
-    Bonjour for Windows:
+To make hostname.local work with windows, you must download and install
+Bonjour for Windows:
 
-    https://developer.apple.com/bonjour/
+https://developer.apple.com/bonjour/
 
 *** USB to Ethernet Adapter Direct Connection
 
-    Setup Ethernet connection for USB ethernet adapter device and in Network and
-    Sharing Center select network with internet access and allow internet
-    connection sharing with Ethernet connection of USB ethernet adapter.
+Setup Ethernet connection for USB ethernet adapter device and in Network and
+Sharing Center select network with internet access and allow internet
+connection sharing with Ethernet connection of USB ethernet adapter.
