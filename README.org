@@ -103,7 +103,6 @@ sudo apt install -y avahi-daemon avahi-discover avahi-utils libnss-mdns mdns-sca
 sudo reboot
 #+END_SRC
 
-
 *** Change username and hostname
 
 **** Create temporary user
@@ -140,8 +139,6 @@ exit
 #+BEGIN_SRC sh
 hostnamectl
 sudo hostnamectl set-hostname newhostname
-sudo nano /etc/hosts
-# Replace any occurrence of the existing computer name with your new hostname.
 sudo reboot
 #+END_SRC
 
